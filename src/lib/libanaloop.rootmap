@@ -1,0 +1,30 @@
+[ libanaloop.so ]
+# List of selected classes
+class TAlEncBranch
+class TAlEncFactory
+class TAlEncFillTree
+class TAlEncGate
+class TAlEncHist
+class TAlEncPrint
+class TAlEncStop
+class TAlEncSub
+class TAlRawDataExample
+class TArtAnaFile
+class TArtAnaGate
+class TArtAnaLoopManager
+class TArtAnaLoopStatic
+class TArtValIndex
+class TArtValIndexVal
+class TArtValIndexValArray
+class TArtValMap
+header TAlEncBranch.hh
+header TAlEncFactory.hh
+header TAlEncFillTree.hh
+header TAlEncGate.hh
+header TAlEncHist.hh
+header TAlEncPrint.hh
+header TAlEncStop.hh
+header TAlEncSub.hh
+header TAlRawDataExample.hh
+header TArtAnaFile.hh
+header TArtAnaLoopManager.hh

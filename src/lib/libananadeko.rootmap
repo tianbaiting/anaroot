@@ -1,0 +1,4 @@
+[ libananadeko.so ]
+# List of selected vars
+var gH1
+var gTree

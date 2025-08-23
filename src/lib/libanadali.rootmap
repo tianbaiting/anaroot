@@ -1,0 +1,10 @@
+[ libanadali.so ]
+# List of selected classes
+class TArtCalibDALI
+class TArtDALINaI
+class TArtDALINaIPara
+class TArtDALIParameters
+header TArtCalibDALI.hh
+header TArtDALINaI.hh
+header TArtDALINaIPara.hh
+header TArtDALIParameters.hh

@@ -1,0 +1,10 @@
+[ libanacatana.so ]
+# List of selected classes
+class TArtCATANACsI
+class TArtCATANACsIPara
+class TArtCATANAParameters
+class TArtCalibCATANA
+header TArtCATANACsI.hh
+header TArtCATANACsIPara.hh
+header TArtCATANAParameters.hh
+header TArtCalibCATANA.hh

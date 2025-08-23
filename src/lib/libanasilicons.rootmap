@@ -1,0 +1,10 @@
+[ libanasilicons.so ]
+# List of selected classes
+class TArtCalibSILICONS
+class TArtSILICONS
+class TArtSILICONSPara
+class TArtSILICONSParameters
+header TArtCalibSILICONS.hh
+header TArtSILICONS.hh
+header TArtSILICONSPara.hh
+header TArtSILICONSParameters.hh

@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataroot>
+<TOGAXSISi>
+<ID>1</ID>
+<name>X1-26</name>
+<segment>1</segment>
+<layer>1</layer>
+<sector>0</sector>
+<adcm>5</adcm>
+<adcm_conn>1</adcm_conn>
+<type>1</type>
+<iscluster>   0</iscluster>
+<posx>  0</posx>
+<posy>59.91</posy>
+<posz> 81.432</posz>
+<phi>  -60</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>2</ID>
+<name>X2-1920</name>
+<segment>1</segment>
+<layer>2</layer>
+<sector>0</sector>
+<adcm>6</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 0</iscluster>
+<posx>  0</posx>
+<posy>89.91</posy>
+<posz> 102.612</posz>
+<phi> -60</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>3</ID>
+<name>Y1-3735</name>
+<segment>1</segment>
+<layer>3</layer>
+<sector>0</sector>
+<adcm>6</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 0</iscluster>
+<posx>  38.45</posx>
+<posy>95.91</posy>
+<posz> 109.272</posz>
+<phi> -60</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>4</ID>
+<name>X1-24</name>
+<segment>2</segment>
+<layer>1</layer>
+<sector>1</sector>
+<adcm>5</adcm>
+<adcm_conn>0</adcm_conn>
+<type>1</type>
+<iscluster>   0</iscluster>
+<posx>  0</posx>
+<posy>59.91</posy>
+<posz> 81.432</posz>
+<phi>   60</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>5</ID>
+<name>X2-3536</name>
+<segment>2</segment>
+<layer>2</layer>
+<sector>1</sector>
+<adcm>6</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 0</iscluster>
+<posx>  0</posx>
+<posy>89.91</posy>
+<posz> 102.612</posz>
+<phi>  60</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>6</ID>
+<name>Y1-4041</name>
+<segment>2</segment>
+<layer>3</layer>
+<sector>1</sector>
+<adcm>6</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 0</iscluster>
+<posx>  38.45</posx>
+<posy>95.91</posy>
+<posz> 109.272</posz>
+<phi>  60</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>7</ID>
+<name>X1-20</name>
+<segment>3</segment>
+<layer>1</layer>
+<sector>0</sector>
+<adcm>5</adcm>
+<adcm_conn>0</adcm_conn>
+<type>1</type>
+<iscluster>   0</iscluster>
+<posx>  0</posx>
+<posy>59.91</posy>
+<posz> 81.432</posz>
+<phi>  120</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>8</ID>
+<name>X2-1618</name>
+<segment>3</segment>
+<layer>2</layer>
+<sector>2</sector>
+<adcm>6</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 0</iscluster>
+<posx>  0</posx>
+<posy>89.91</posy>
+<posz> 102.612</posz>
+<phi> 120</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>9</ID>
+<name>Y1-3839</name>
+<segment>3</segment>
+<layer>3</layer>
+<sector>2</sector>
+<adcm>6</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 0</iscluster>
+<posx>  38.45</posx>
+<posy>95.91</posy>
+<posz> 109.272</posz>
+<phi> 120</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>10</ID>
+<name>X1-17</name>
+<segment>4</segment>
+<layer>1</layer>
+<sector>1</sector>
+<adcm>5</adcm>
+<adcm_conn>1</adcm_conn>
+<type>1</type>
+<iscluster>   0</iscluster>
+<posx>  0</posx>
+<posy>59.91</posy>
+<posz> 81.432</posz>
+<phi>  -120</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>11</ID>
+<name>X2-1213</name>
+<segment>4</segment>
+<layer>2</layer>
+<sector>3</sector>
+<adcm>6</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 0</iscluster>
+<posx>  0</posx>
+<posy>89.91</posy>
+<posz> 102.612</posz>
+<phi> -120</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>12</ID>
+<name>Y1-2829</name>
+<segment>4</segment>
+<layer>3</layer>
+<sector>3</sector>
+<adcm>6</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 0</iscluster>
+<posx>  38.45</posx>
+<posy>95.91</posy>
+<posz> 109.272</posz>
+<phi> -120</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>13</ID>
+<name>Y1-0244</name>
+<segment>5</segment>
+<layer>1</layer>
+<sector>0</sector>
+<adcm>7</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 1</iscluster>
+<posx>  0</posx>
+<posy> 40.15</posy>
+<posz> 293.691</posz>
+<phi> 0</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>14</ID>
+<name>X2-2426</name>
+<segment>5</segment>
+<layer>2</layer>
+<sector>0</sector>
+<adcm>7</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 1</iscluster>
+<posx>  134.675</posx>
+<posy>0</posy>
+<posz> 298.991</posz>
+<phi> 0</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>15</ID>
+<name>X2-3034</name>
+<segment>5</segment>
+<layer>3</layer>
+<sector>1</sector>
+<adcm>7</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 1</iscluster>
+<posx>  141.675</posx>
+<posy>0</posy>
+<posz> 360.041</posz>
+<phi> 0</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>16</ID>
+<name>Y1-3334</name>
+<segment>5</segment>
+<layer>4</layer>
+<sector>1</sector>
+<adcm>7</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 1</iscluster>
+<posx>  0</posx>
+<posy> -36.55</posy>
+<posz> 366.191</posz>
+<phi> 0</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>17</ID>
+<name>Y1-3032</name>
+<segment>6</segment>
+<layer>4</layer>
+<sector>2</sector>
+<adcm>7</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 1</iscluster>
+<posx>  0</posx>
+<posy> 40.15</posy>
+<posz> 366.191</posz>
+<phi> 0</phi>
+<dir>-1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>18</ID>
+<name>X2-2728</name>
+<segment>6</segment>
+<layer>3</layer>
+<sector>2</sector>
+<adcm>7</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 1</iscluster>
+<posx>  -141.675</posx>
+<posy>0</posy>
+<posz> 360.041</posz>
+<phi> 0</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>19</ID>
+<name>X2-1415</name>
+<segment>6</segment>
+<layer>2</layer>
+<sector>3</sector>
+<adcm>7</adcm>
+<adcm_conn>1</adcm_conn>
+<type>2</type>
+<iscluster> 1</iscluster>
+<posx>  -134.675</posx>
+<posy>0</posy>
+<posz> 298.991</posz>
+<phi> 0</phi>
+<dir>1</dir>
+</TOGAXSISi>
+<TOGAXSISi>
+<ID>20</ID>
+<name>Y1-4647</name>
+<segment>6</segment>
+<layer>1</layer>
+<sector>3</sector>
+<adcm>7</adcm>
+<adcm_conn>0</adcm_conn>
+<type>3</type>
+<iscluster> 1</iscluster>
+<posx>  0</posx>
+<posy> -36.55</posy>
+<posz> 293.691</posz>
+<phi> 0</phi>
+<dir>1</dir>
+</TOGAXSISi>
+</dataroot>

@@ -1,0 +1,34 @@
+name,type,value,comment
+bstc1,Double_t,+3.727e-3,BDC1Xstc
+bstc2,Double_t,+2.047e-3,BDC1Xstc
+bstc3,Double_t,+5.393e-6,BDC1Xstc
+bstc4,Double_t,-1.831e-8,BDC1Xstc
+bstc5,Double_t,+1.299e-11,BDC1Xstc
+rstc1,Double_t,-1.495e-2,RDC1Xstc
+rstc2,Double_t,+6.755e-3,RDC1Xstc
+rstc3,Double_t,-1.754e-5,RDC1Xstc
+rstc4,Double_t,+2.094e-8,RDC1Xstc
+rstc5,Double_t,-0.924e-11,RDC1Xstc
+b31stc1,Double_t,-2.882e-2,BLD31Xstc
+b31stc2,Double_t,+9.113e-3,BLD31Xstc
+b31stc3,Double_t,-8.315e-6,BLD31Xstc
+b31stc4,Double_t,-3.141e-8,BLD31Xstc
+b31stc5,Double_t,+5.082e-11,BLD31Xstc
+b32stc1,Double_t,-7.989e-3,BLD32Xstc
+b32stc2,Double_t,+4.054e-3,BLD32Xstc
+b32stc3,Double_t,+0.444e-6,BLD32Xstc
+b32stc4,Double_t,-1.118e-8,BLD32Xstc
+b32stc5,Double_t,+0.815e-11,BLD32Xstc
+b51stc1,Double_t,+1.764e-4,BLD51Xstc
+b51stc2,Double_t,+1.938e-3,BLD51Xstc
+b51stc3,Double_t,-2.334e-6,BLD51Xstc
+b51stc4,Double_t,+0.361e-8,BLD51Xstc
+b51stc5,Double_t,-0.221e-11,BLD51Xstc
+b71stc1,Double_t,+5.739e-3,BLD71Xstc
+b71stc2,Double_t,+2.329e-3,BLD71Xstc
+b71stc3,Double_t,+4.025e-6,BLD71Xstc
+b71stc4,Double_t,-1.602e-8,BLD71Xstc
+b71stc5,Double_t,+1.161e-11,BLD71Xstc
+dprm0,Double_t,0.001,example for double
+iprm0,Int_t,12,example for int
+sprm0,TString,123alpha,example for string

@@ -1,0 +1,16 @@
+[ libanaloopexample.so ]
+# List of selected classes
+class TAlBigRIPSExample
+class TAlDALIExample
+class TAlGeExample
+class TAlSAMURAIDCExample
+class TAlSAMURAIExample
+class TAlSAMURAIHODExample
+class TAlWINDSExample
+header TAlBigRIPSExample.hh
+header TAlDALIExample.hh
+header TAlGeExample.hh
+header TAlSAMURAIDCExample.hh
+header TAlSAMURAIExample.hh
+header TAlSAMURAIHODExample.hh
+header TAlWINDSExample.hh

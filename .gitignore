@@ -1,0 +1,29 @@
+# 忽略编译生成文件和临时文件
+*.o
+*.so
+*.a
+*.out
+*.exe
+*.root
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.pyc
+*.class
+*.DS_Store
+# 忽略VSCode配置
+.vscode/
+# 忽略CMake和Makefile生成的中间文件
+CMakeFiles/
+CMakeCache.txt
+Makefile
+build/
+# 忽略其他常见临时文件
+*.~
+*.#*
+# 忽略RIDF和ROOT输出
+*.ridf
+ridf/
+output/

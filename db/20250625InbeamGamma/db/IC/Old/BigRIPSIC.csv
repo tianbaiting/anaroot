@@ -1,0 +1,3 @@
+NAME,FPL,ch2mev_0,ch2mev_1,zcoef_0,zcoef_1,zcoef_2,ionpair,pedestal0,pedestal1,pedestal2,pedestal3,pedestal4,pedestal5,pedestal6,pedestal7,pedestal8,pedestal9,detectorid,geo0,ch0,geo1,ch1,geo2,ch2,geo3,ch3,geo4,ch4,geo5,ch5,geo6,ch6,geo7,ch7
+F7IC,7,32.143,0.0564,14.83,-7.06,0,4866,0,0,0,0,0,0,0,0,0,0,4,2,0,2,1,2,2,2,3,2,4,2,5,2,6,2,7
+F11IC,41,0,0.1,32.8299,-12.9839,0,4866,0,0,0,0,0,0,100,100,100,0,4,31,0,31,15,31,2,31,3,31,4,31,5,31,6,31,7

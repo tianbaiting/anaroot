@@ -1,0 +1,59 @@
+TArtEventStore(
+@
+.ls
+.q
+gSystem->Load("libanacore.so")
+.L MakeSAMURAIDCTPF.C+
+.ls
+.q
+.q
+.q
+.q
+.q
+.x ma.q
+.q
+.qqq
+.q
+.L macros/TAlSAMURAI.cc+g
+.q
+.q
+.q
+3.70866e+04 - 3.68217e+04
+3.69887e+04 - 3.67181e+04
+3.72347e+04 - 3.71079e+04
+3.71224e+04 - 3.68460e+04
+1.55103e+04 - 1.54903e+04
+1.55192e+04 - 1.53371e+04
+1.52899e+04 - 1.51753e+04
+1.54192e+04 - 1.51719e+04
+.q
+1.55078e+04 - 1.54890e+04 
+1.55166e+04 - 1.52756e+04
+1.52881e+04 -  1.51856e+04
+1.54164e+04 - 1.51239e+04
+.q
+36617./16.163
+.q
+2172*3
+2172*4
+2172*5
+.q
+.q
+.x macros.q
+.q
+.q
+.q
+.q
+.q
+.q
+.L sm_online_utils/install/lib/libsmconbe
+.L sm_online_utils/install/lib/libsmconverter.so
+.q
+.L sm_online_utils/install/lib/libsmconverter.so.q
+.q
+.q
+cd ../
+ls
+q.
+.q
+.q

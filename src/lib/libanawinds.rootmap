@@ -1,0 +1,10 @@
+[ libanawinds.so ]
+# List of selected classes
+class TArtCalibWINDSPla
+class TArtWINDSParameters
+class TArtWINDSPla
+class TArtWINDSPlaPara
+header TArtCalibWINDSPla.hh
+header TArtWINDSParameters.hh
+header TArtWINDSPla.hh
+header TArtWINDSPlaPara.hh

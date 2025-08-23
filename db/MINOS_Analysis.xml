@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataroot>
+  <MINOS><MINOSthresh> 25.    </MINOSthresh></MINOS>
+  <MINOS><TimeBinElec> 30.    </TimeBinElec></MINOS>
+  <MINOS><VDrift    >   0.04071</VDrift    ></MINOS>
+  <MINOS><Tshaping  > 333.    </Tshaping  ></MINOS>
+  <MINOS><DelayTrig >1200.0   </DelayTrig ></MINOS>
+  <MINOS><Tgt_Length> 152.0   </Tgt_Length></MINOS>
+  <MINOS><Beta      >   0.6   </Beta      ></MINOS>
+  <MINOS><Delta_Beta>   0.2   </Delta_Beta></MINOS>
+  <MINOS><Pos_offset>  7.0   </Pos_offset></MINOS>
+  <MINOS><DALIOffset>  0.0   </DALIOffset></MINOS>
+</dataroot>
+
