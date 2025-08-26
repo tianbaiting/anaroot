@@ -4,6 +4,19 @@
 #include <iostream>
 #include <TMinuit.h>
 
+#ifndef _Cling_
+#include <TCanvas.h>
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TPaveText.h>
+#include <TSystem.h>
+#include <TArtSAMURAIParameters.hh>
+#include <TArtEventStore.hh>
+#include <TArtCalibPDCHit.hh>
+#include <TArtStoreManager.hh>
+#include <TArtDCHit.hh>
+#include <TClonesArray.h>
+#endif
 
 std::vector<TArtDCHit*> hits_buffer_x[2];
 std::vector<TArtDCHit*> hits_buffer_u[2];
@@ -81,7 +94,7 @@ void fcn_wrapper(Int_t& npar, Double_t* grad, Double_t& fval, Double_t* par, Int
 }
 
 void recoPDCsingleTrackVisual(const char* ridffile = "../ridf/data1008.ridf") {
-    int target_event = 10; // 只重建这个 event
+    int target_event = 97; // 只重建这个 event
 
     gSystem->Load("libXMLParser.so");
     gSystem->Load("libanacore.so");
@@ -128,12 +141,12 @@ void recoPDCsingleTrackVisual(const char* ridffile = "../ridf/data1008.ridf") {
         }
       
         // 创建每个 layer 的直方图
-        TH1F* hU0 = new TH1F("hU0", "U0 Layer Hit Position;U0 Position;Counts", 100, -900, 900);
-        TH1F* hU1 = new TH1F("hU1", "U1 Layer Hit Position;U1 Position;Counts", 100, -900, 900);
-        TH1F* hV0 = new TH1F("hV0", "V0 Layer Hit Position;V0 Position;Counts", 100, -900, 900);
-        TH1F* hV1 = new TH1F("hV1", "V1 Layer Hit Position;V1 Position;Counts", 100, -900, 900);
-        TH1F* hX0 = new TH1F("hX0", "X0 Layer Hit Position;X0 Position;Counts", 100, -900, 900);
-        TH1F* hX1 = new TH1F("hX1", "X1 Layer Hit Position;X1 Position;Counts", 100, -900, 900);
+        TH1F* hU0 = new TH1F("hU0", "U0 Layer Hit Position;U0 Position;Counts", 300, -900, 900);
+        TH1F* hU1 = new TH1F("hU1", "U1 Layer Hit Position;U1 Position;Counts", 300, -900, 900);
+        TH1F* hV0 = new TH1F("hV0", "V0 Layer Hit Position;V0 Position;Counts", 300, -900, 900);
+        TH1F* hV1 = new TH1F("hV1", "V1 Layer Hit Position;V1 Position;Counts", 300, -900, 900);
+        TH1F* hX0 = new TH1F("hX0", "X0 Layer Hit Position;X0 Position;Counts", 300, -900, 900);
+        TH1F* hX1 = new TH1F("hX1", "X1 Layer Hit Position;X1 Position;Counts", 300, -900, 900);
 
         // 填充直方图
         for (auto hit : hits_buffer_u[0]) hU0->Fill(hit->GetWirePosition());
