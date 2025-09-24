@@ -6,13 +6,14 @@
 
 
 
-void recoPDCTrack(const char* ridffile = "../ridf/data1008.ridf") {
+void recoPDCTrack(const char* ridffile = "../ridf/data0011.ridf") {
 
   gSystem->Load("libXMLParser.so"); // 先加载XML解析库
     gSystem->Load("libanacore.so");
     // 加载PDC参数
     TArtSAMURAIParameters *samuraiparameters = TArtSAMURAIParameters::Instance();
     samuraiparameters->LoadParameter("../db/SAMURAIPDC.xml");
+    // samuraiparameters->LoadParameter("/home/tbt/workspace/dpol/tbt_anaroot/db/for_tbt_use/20250901PDC_v01.xml");
     // samuraiparameters->LoadParameter("../db/SAMURAIPDC_fit.xml");
     // 打开RIDF文件
     TArtEventStore *estore = new TArtEventStore();

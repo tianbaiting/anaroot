@@ -43,7 +43,7 @@ export PYTHONPATH=$TARTSYS/bin:$PATH
 export ANAUSER=$ANAUSER
 export PS1="[\u\[\e[1m\]/\$ANAUSER\[\e[0m\]@\h \W]\$ "
 
-# export ROOT_INCLUDE_PATH=$TARTSYS/include:$ROOT_INCLUDE_PATH
+export ROOT_INCLUDE_PATH=$TARTSYS/include:$ROOT_INCLUDE_PATH
 # export ROOT_INCLUDE_PATH=$ANAROOT_WORK/src/include:$ROOT_INCLUDE_PATH # 这个路径似乎不对
 
 # Define aliases
