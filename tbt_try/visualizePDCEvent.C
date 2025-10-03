@@ -141,6 +141,7 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     TClonesArray *pdc_hit_array = (TClonesArray *)sman->FindDataContainer("SAMURAIPDCHit");
     
     // 3. 读取目标事件的击中数据
+    std::map<int, double> wireTotMap; // 存储每根丝的原始 tot 值（未归一化）
     std::set<int> hitWireIDs;
     int neve = 0;
     bool eventFound = false;
@@ -156,11 +157,15 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
             for (int i = 0; i < num_hit; ++i) {
                 TArtDCHit *hit = (TArtDCHit*)pdc_hit_array->At(i);
                 if (hit->GetTDC() > 0 && hit->GetTrailTDC() > 0) {
-                    hitWireIDs.insert(hit->GetWireID());
+                    int wid = hit->GetWireID();
+                    double tot = hit->GetTrailTDC() - hit->GetTDC();
+                    wireTotMap[wid] = tot;
+                    hitWireIDs.insert(wid);
                     std::cout << "击中丝: Layer=" << hit->GetLayer() 
-                              << " WireID=" << hit->GetWireID() 
+                              << " WireID=" << wid
                               << " Position=" << hit->GetWirePosition()
-                              << " TDC=" << hit->GetTDC() << std::endl;
+                              << " TDC=" << hit->GetTDC() 
+                              << " TOT=" << tot << std::endl;
                 }
             }
             eventFound = true;
@@ -177,6 +182,19 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     std::cout << "总共 " << hitWireIDs.size() << " 根丝被击中" << std::endl;
     
     // 4. 标记被击中的丝
+    // 归一化 tot（保存在 wireTotMap 中：归一化后覆盖原值）
+    double tot_min = std::numeric_limits<double>::max();
+    double tot_max = std::numeric_limits<double>::lowest();
+    for (const auto& p : wireTotMap) {
+        tot_min = std::min(tot_min, p.second);
+        tot_max = std::max(tot_max, p.second);
+    }
+    bool hasTotRange = (tot_max > tot_min);
+    for (auto& p : wireTotMap) {
+        if (hasTotRange) p.second = (p.second - tot_min) / (tot_max - tot_min);
+        else p.second = 0.5; // 如果所有 TOT 相同，设为中等深度
+    }
+    for (auto& wire : wires) wire.isHit = false;
     for (auto& wire : wires) {
         if (hitWireIDs.find(wire.wireid) != hitWireIDs.end()) {
             wire.isHit = true;
@@ -222,7 +240,13 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
             line->SetPoint(1, x2, y2, wire.wirez);
             
             if (wire.isHit) {
-                line->SetLineColor(kGreen);
+                double norm = 0.0;
+                auto it = wireTotMap.find(wire.wireid);
+                if (it != wireTotMap.end()) norm = it->second; // 0..1
+                int val = 60 + (int)std::round(std::min(1.0, std::max(0.0, norm)) * 195.0); // 60..255
+                // U 层为绿色通道
+                int col = TColor::GetColor(0, val, 0);
+                line->SetLineColor(col);
                 line->SetLineWidth(3);
                 hit_u++;
             } else {
@@ -247,7 +271,13 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
             line->SetPoint(1, x2, y2, wire.wirez);
             
             if (wire.isHit) {
-                line->SetLineColor(kBlue);
+                double norm = 0.0;
+                auto it = wireTotMap.find(wire.wireid);
+                if (it != wireTotMap.end()) norm = it->second;
+                int val = 10 + (int)std::round(std::min(1.0, std::max(0.0, norm)) * 245.0); // 10..255
+                // V 层为蓝色通道
+                int col = TColor::GetColor(0, 0, val);
+                line->SetLineColor(col);
                 line->SetLineWidth(3);
                 hit_v++;
             } else {
@@ -262,7 +292,13 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
             line->SetPoint(1, wire.wirepos, -halfy, wire.wirez);
             
             if (wire.isHit) {
-                line->SetLineColor(kRed);
+                double norm = 0.0;
+                auto it = wireTotMap.find(wire.wireid);
+                if (it != wireTotMap.end()) norm = it->second;
+                int val = 10 + (int)std::round(std::min(1.0, std::max(0.0, norm)) * 245.0); // 10..255
+                // X 层为红色通道
+                int col = TColor::GetColor(val, 0, 0);
+                line->SetLineColor(col);
                 line->SetLineWidth(3);
                 hit_x++;
             } else {
@@ -279,13 +315,47 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
         lines.push_back(line);
     }
     
-    // 设置3D视图范围
+    // 设置3D视图范围并设定观察方向
     TView *view = TView3D::CreateView(1);
     if (!z_values.empty()) {
         double z_min = *std::min_element(z_values.begin(), z_values.end());
         double z_max = *std::max_element(z_values.begin(), z_values.end());
         view->SetRange(-1000, -500, z_min-100, 1000, 500, z_max+100);
     }
+    // 设定观察角度（单位：度）
+    // - view_longitude: 方位角，绕竖直轴旋转（调整哪个轴朝向屏幕左/右）
+    // - view_latitude : 纬度/仰角，控制上下视角（正值抬高视点，使 Y 看起来向上）
+    // - view_psi      : 旋转角，绕视线方向的旋转
+
+// 设定观察角度（单位：度）
+    // 目标：Y 轴朝上，Z 轴朝左
+
+    // 1. 将相机移动到 X 轴正方向，平视原点
+    double view_longitude = 0.0;
+    double view_latitude  = 90.0+15.0;
+
+    // 2. 将相机顺时针旋转90度，使 Y 轴变为新的“上”方向
+    double view_psi       = -90.0;
+    
+    int irep = 0;
+    view->SetView(view_longitude, view_latitude, view_psi, irep);
+
+    view->SetViewChanged(kTRUE);
+    view->SetAutoRange(kTRUE);
+
+       // 检查当前是否有 TPad 处于活动状态
+    if (gPad) {
+        // 2. 将视角参数同步给 TPad，防止鼠标交互时视角跳变
+        gPad->SetPhi(-90 - view_longitude);
+        gPad->SetTheta(90 - view_latitude);
+
+        // 3. 标记 Pad 已被修改并强制更新，确保画面立即刷新
+        gPad->Modified(kTRUE);
+        gPad->Update();
+    }
+
+    // view->SetAutoRange(kFALSE);
+    // view->SetViewChanged(kFALSE);
     
     // 绘制所有丝
     for (auto line : lines) {
@@ -366,47 +436,47 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     std::string outputFile = std::string(outputDir) + Form("/pdc_event_%d_3d.png", target_event);
     c1->SaveAs(outputFile.c_str());
     
-    // 创建击中统计直方图
-    TCanvas *c2 = new TCanvas("c2", "Hit Statistics", 800, 600);
+    // // 创建击中统计直方图
+    // TCanvas *c2 = new TCanvas("c2", "Hit Statistics", 800, 600);
     
-    TH1F *h_hit_stats = new TH1F("h_hit_stats", 
-                                 Form("PDC Hit Statistics - Event %d;Wire Type;Number of Hits", target_event),
-                                 3, 0, 3);
-    h_hit_stats->GetXaxis()->SetBinLabel(1, "X wires");
-    h_hit_stats->GetXaxis()->SetBinLabel(2, "U wires");
-    h_hit_stats->GetXaxis()->SetBinLabel(3, "V wires");
+    // TH1F *h_hit_stats = new TH1F("h_hit_stats", 
+    //                              Form("PDC Hit Statistics - Event %d;Wire Type;Number of Hits", target_event),
+    //                              3, 0, 3);
+    // h_hit_stats->GetXaxis()->SetBinLabel(1, "X wires");
+    // h_hit_stats->GetXaxis()->SetBinLabel(2, "U wires");
+    // h_hit_stats->GetXaxis()->SetBinLabel(3, "V wires");
     
-    h_hit_stats->SetBinContent(1, hit_x);
-    h_hit_stats->SetBinContent(2, hit_u);
-    h_hit_stats->SetBinContent(3, hit_v);
+    // h_hit_stats->SetBinContent(1, hit_x);
+    // h_hit_stats->SetBinContent(2, hit_u);
+    // h_hit_stats->SetBinContent(3, hit_v);
     
-    h_hit_stats->SetFillColor(kCyan);
-    h_hit_stats->SetStats(false);
-    h_hit_stats->Draw();
+    // h_hit_stats->SetFillColor(kCyan);
+    // h_hit_stats->SetStats(false);
+    // h_hit_stats->Draw();
     
-    // 添加数值标签
-    for (int i = 1; i <= 3; i++) {
-        double content = h_hit_stats->GetBinContent(i);
-        if (content > 0) {
-            TLatex *label = new TLatex();
-            label->SetTextAlign(22);
-            label->SetTextSize(0.04);
-            label->DrawLatex(i-0.5, content + content*0.1, Form("%.0f", content));
-        }
-    }
+    // // 添加数值标签
+    // for (int i = 1; i <= 3; i++) {
+    //     double content = h_hit_stats->GetBinContent(i);
+    //     if (content > 0) {
+    //         TLatex *label = new TLatex();
+    //         label->SetTextAlign(22);
+    //         label->SetTextSize(0.04);
+    //         label->DrawLatex(i-0.5, content + content*0.1, Form("%.0f", content));
+    //     }
+    // }
     
-    c2->Update();
-    std::string outputFile2 = std::string(outputDir) + Form("/pdc_event_%d_stats.png", target_event);
-    c2->SaveAs(outputFile2.c_str());
+    // c2->Update();
+    // std::string outputFile2 = std::string(outputDir) + Form("/pdc_event_%d_stats.png", target_event);
+    // c2->SaveAs(outputFile2.c_str());
     
-    // 输出结果
-    std::cout << "\n=== 可视化完成 ===" << std::endl;
-    std::cout << "X丝击中: " << hit_x << "/" << count_x << std::endl;
-    std::cout << "U丝击中: " << hit_u << "/" << count_u << std::endl;
-    std::cout << "V丝击中: " << hit_v << "/" << count_v << std::endl;
-    std::cout << "总击中: " << (hit_x + hit_u + hit_v) << "/" << (count_x + count_u + count_v) << std::endl;
-    std::cout << "输出文件: " << outputFile << std::endl;
-    std::cout << "统计文件: " << outputFile2 << std::endl;
+    // // 输出结果
+    // std::cout << "\n=== 可视化完成 ===" << std::endl;
+    // std::cout << "X丝击中: " << hit_x << "/" << count_x << std::endl;
+    // std::cout << "U丝击中: " << hit_u << "/" << count_u << std::endl;
+    // std::cout << "V丝击中: " << hit_v << "/" << count_v << std::endl;
+    // std::cout << "总击中: " << (hit_x + hit_u + hit_v) << "/" << (count_x + count_u + count_v) << std::endl;
+    // std::cout << "输出文件: " << outputFile << std::endl;
+    // std::cout << "统计文件: " << outputFile2 << std::endl;
     
     // 清理
     delete pdchitcalib;
