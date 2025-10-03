@@ -29,6 +29,8 @@ class TArtCalibPDCHit;
 class TArtStoreManager;
 class TArtDCHit;
 class TClonesArray;
+class TArtCalibPDCTrack;
+class TArtDCTrack;
 
 struct WireInfo {
     double wirepos;
@@ -56,10 +58,12 @@ std::string extractValue(const std::string& line, const std::string& tag) {
     return "";
 }
 
+// void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf", 
+//                        const char* xmlfile = "/home/tbt/workspace/dpol/tbt_anaroot/db/SAMURAIPDC.xml",
+//                        int target_event = 66) {
 void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf", 
                        const char* xmlfile = "/home/tbt/workspace/dpol/tbt_anaroot/db/SAMURAIPDC.xml",
-                       int target_event = 66) {
-    
+                       int target_event = 2) {
     // 创建输出目录
     const char* outputDir = "./output";
     mkdir(outputDir, 0755);
@@ -137,8 +141,13 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     }
     
     TArtCalibPDCHit *pdchitcalib = new TArtCalibPDCHit();
+    TArtCalibPDCTrack *pdctrackcalib = new TArtCalibPDCTrack(); // 用于径迹重建
     TArtStoreManager *sman = TArtStoreManager::Instance();
     TClonesArray *pdc_hit_array = (TClonesArray *)sman->FindDataContainer("SAMURAIPDCHit");
+    TClonesArray *pdc_trk_array = (TClonesArray *)sman->FindDataContainer("SAMURAIPDCTrack"); // 重建后的径迹容器
+
+    // 提前声明，用于在事件循环中收集重建的径迹线段
+    std::vector<TPolyLine3D*> trackLines;
     
     // 3. 读取目标事件的击中数据
     std::map<int, double> wireTotMap; // 存储每根丝的原始 tot 值（未归一化）
@@ -150,6 +159,14 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
         if (neve == target_event) {
             pdchitcalib->ClearData();
             pdchitcalib->ReconstructData();
+            // 同时执行径迹重建
+            if (pdctrackcalib) {
+                pdctrackcalib->ClearData();
+                pdctrackcalib->ReconstructData();
+                std::cout << "径迹重建完成，找到 " 
+                          << (pdc_trk_array ? pdc_trk_array->GetEntries() : 0) 
+                          << " 条径迹" << std::endl;
+            }
             
             int num_hit = pdc_hit_array->GetEntries();
             std::cout << "事件 " << target_event << " 有 " << num_hit << " 个击中" << std::endl;
@@ -166,6 +183,49 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
                               << " Position=" << hit->GetWirePosition()
                               << " TDC=" << hit->GetTDC() 
                               << " TOT=" << tot << std::endl;
+                }
+            }
+            // 使用重建好的 track 数据构造 3D 线条
+            if (pdc_trk_array && pdc_trk_array->GetEntries() > 0) {
+                // 计算丝的 z 范围（若 wires 已读）
+                double zmin_w = 0.0, zmax_w = 0.0;
+                if (!wires.empty()) {
+                    zmin_w = wires.front().wirez;
+                    zmax_w = wires.front().wirez;
+                    for (const auto &w : wires) {
+                        zmin_w = std::min(zmin_w, w.wirez);
+                        zmax_w = std::max(zmax_w, w.wirez);
+                    }
+                } else {
+                    zmin_w = -500; zmax_w = 10;
+                }
+                // 扩展一点以覆盖可视区域
+                double z1 = zmin_w ;
+                double z2 = zmax_w ;
+
+                int ntrk = pdc_trk_array->GetEntries();
+                for (int it = 0; it < ntrk; ++it) {
+                    TArtDCTrack *trk = (TArtDCTrack*)pdc_trk_array->At(it);
+                    if (!trk) continue;
+                    double tx = trk->GetPosition(0);
+                    double ty = trk->GetPosition(1);
+                    double ax = trk->GetAngle(0); // dx/dz 近似
+                    double ay = trk->GetAngle(1); // dy/dz 近似
+                    // 以 z=0 作为参考面（若需要可根据实现调整）
+                    double x1 = tx + ax * (z1 - 0.0);
+                    double y1 = ty + ay * (z1 - 0.0);
+                    double x2 = tx + ax * (z2 - 0.0);
+                    double y2 = ty + ay * (z2 - 0.0);
+
+                    TPolyLine3D *tline = new TPolyLine3D(2);
+                    tline->SetPoint(0, x1, y1, z1);
+                    tline->SetPoint(1, x2, y2, z2);
+                    tline->SetLineColor(kMagenta);
+                    tline->SetLineWidth(3);
+                    trackLines.push_back(tline);
+
+                    std::cout << "径迹 " << it << ": (" << x1 << ", " << y1 << ", " << z1 
+                              << ") to (" << x2 << ", " << y2 << ", " << z2 << ")" << std::endl;
                 }
             }
             eventFound = true;
@@ -214,6 +274,7 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     
     std::vector<TPolyLine3D*> lines;
     std::vector<double> z_values;
+    // trackLines 已在上方声明
     
     int count_x = 0, count_u = 0, count_v = 0;
     int hit_x = 0, hit_u = 0, hit_v = 0;
@@ -243,7 +304,9 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
                 double norm = 0.0;
                 auto it = wireTotMap.find(wire.wireid);
                 if (it != wireTotMap.end()) norm = it->second; // 0..1
-                int val = 60 + (int)std::round(std::min(1.0, std::max(0.0, norm)) * 195.0); // 60..255
+
+                //设置颜色渐变
+                int val = 150 + (int)std::round(std::min(1.0, std::max(0.0, norm)) * 105.0); // 100..255
                 // U 层为绿色通道
                 int col = TColor::GetColor(0, val, 0);
                 line->SetLineColor(col);
@@ -356,12 +419,18 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
 
     // view->SetAutoRange(kFALSE);
     // view->SetViewChanged(kFALSE);
-    
+    for (auto tline : trackLines) {
+        tline->Draw("");
+    }
     // 绘制所有丝
     for (auto line : lines) {
         line->Draw();
     }
-    
+    // 绘制重建的径迹（在丝上方）
+    for (auto tline : trackLines) {
+        tline->Draw("same");
+    }
+    // c1->Update();
     // 绘制坐标轴
     const double axis_length = 400.0;
     
@@ -480,5 +549,7 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     
     // 清理
     delete pdchitcalib;
+    delete pdctrackcalib;
+    // for (auto tline : trackLines) delete tline;
     delete estore;
 }
