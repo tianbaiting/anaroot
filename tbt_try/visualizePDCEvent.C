@@ -1,6 +1,7 @@
 // PDC事件可视化 - 结合丝室结构和击中数据
 // 显示某个事件中被击中的丝（亮、粗）和未击中的丝（灰、细）
-// V3.0 - 整合所有图例信息到主画布
+// V3.2 - 修复了因缺少头文件而导致的“不完整类型”编译错误
+//        现在直接包含anaroot类的定义头文件
 
 #include <iostream>
 #include <fstream>
@@ -9,6 +10,7 @@
 #include <sstream>
 #include <cmath>
 #include <set>
+#include <map>
 #include <sys/stat.h>
 #include <algorithm>
 #include <limits>
@@ -27,15 +29,15 @@
 #include "TColor.h"
 #include "TBox.h"
 
-// 前向声明 - 避免直接包含ANAROOT的完整头文件，加快编译
-class TArtSAMURAIParameters;
-class TArtEventStore;
-class TArtCalibPDCHit;
-class TArtStoreManager;
-class TArtDCHit;
-class TClonesArray;
-class TArtCalibPDCTrack;
-class TArtDCTrack;
+// 引入ANAROOT的完整头文件以提供完整的类定义
+#include "TArtSAMURAIParameters.hh"
+#include "TArtEventStore.hh"
+#include "TArtCalibPDCHit.hh"
+#include "TArtCalibPDCTrack.hh"
+#include "TArtStoreManager.hh"
+#include "TArtDCHit.hh"
+#include "TArtDCTrack.hh"
+#include "TClonesArray.h"
 
 // 定义丝结构体
 struct WireInfo {
@@ -69,7 +71,7 @@ std::string extractValue(const std::string& line, const std::string& tag) {
 // 主绘图函数
 void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf", 
                          const char* xmlfile = "/home/tbt/workspace/dpol/tbt_anaroot/db/SAMURAIPDC.xml",
-                         int target_event = 66) {
+                         int target_event = 55) {
     // 创建输出目录
     const char* outputDir = "./output";
     mkdir(outputDir, 0755);
@@ -77,7 +79,11 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     std::cout << "=== PDC事件可视化 ===" << std::endl;
     std::cout << "目标事件: " << target_event << std::endl;
     std::cout << "输入文件: " << ridffile << std::endl;
-    
+
+    std::string ridffile_str(ridffile);
+    size_t pos = ridffile_str.find_last_of('/');
+    std::string fileName = (pos != std::string::npos) ? ridffile_str.substr(pos + 1) : ridffile_str;
+
     // 1. 读取XML文件获取丝室结构
     std::ifstream file(xmlfile);
     if (!file.is_open()) {
@@ -135,8 +141,9 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
     std::vector<TPolyLine3D*> trackLines;
     
     // 3. 读取目标事件的击中数据
-    std::map<int, double> wireTotMap;
-    std::set<int> hitWireIDs;
+    // *** BUG修复: 使用 std::pair<layer, wireid> 作为唯一的键 ***
+    std::map<std::pair<int, int>, double> wireTotMap;
+    std::set<std::pair<int, int>> hitWireIDs;
     int neve = 0;
     bool eventFound = false;
     
@@ -155,10 +162,15 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
             for (int i = 0; i < num_hit; ++i) {
                 TArtDCHit *hit = (TArtDCHit*)pdc_hit_array->At(i);
                 if (hit->GetTDC() > 0 && hit->GetTrailTDC() > 0) {
+                    // *** BUG修复: 同时获取 layer 和 wireid ***
+                    int layer = hit->GetLayer();
                     int wid = hit->GetWireID();
                     double tot = hit->GetTrailTDC() - hit->GetTDC();
-                    wireTotMap[wid] = tot;
-                    hitWireIDs.insert(wid);
+                    
+                    // *** BUG修复: 使用 pair 作为 map 和 set 的键 ***
+                    wireTotMap[{layer, wid}] = tot;
+                    hitWireIDs.insert({layer, wid});
+
                     std::cout <<"layer" << hit->GetLayer() << " Wire " << wid  <<" 的TDC值为 " << hit->GetTDC() << " 的TrailTDC值为 " << hit->GetTrailTDC() << " 的TOT值为 " << tot << std::endl;
                 }
             }
@@ -214,7 +226,8 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
 
     // 4.2 标记被击中的丝
     for (auto& wire : wires) {
-        wire.isHit = (hitWireIDs.count(wire.wireid) > 0);
+        // *** BUG修复: 使用 pair 进行检查 ***
+        wire.isHit = (hitWireIDs.count({wire.layer, wire.wireid}) > 0);
     }
     
     // 4.3 创建独立的颜色渐变调色板
@@ -271,18 +284,18 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
         line->SetPoint(1, x2, y2, wire.wirez);
 
         if (wire.isHit) {
-            double norm = wireTotMap[wire.wireid];
+            // *** BUG修复: 使用 pair 获取正确的 TOT 值 ***
+            double norm = wireTotMap.at({wire.layer, wire.wireid});
             int idx = int(norm * (NCont - 1) + 0.5);
             idx = std::max(0, std::min(NCont - 1, idx));
             int color = kBlack;
             if(wire.anodedir=="X") {color=colorTableX[idx]; hit_x++;}
             if(wire.anodedir=="U") {color=colorTableU[idx]; hit_u++;}
             if(wire.anodedir=="V") {color=colorTableV[idx]; hit_v++;}
-            // line->SetLineColor(color);F
-            line->SetLineColorAlpha(color,0.3);
+            line->SetLineColorAlpha(color, 0.8); // 增加不透明度以突出显示
             line->SetLineWidth(3);
         } else {
-            line->SetLineColorAlpha(kGray,0.01);
+            line->SetLineColorAlpha(kGray, 0.05); // 降低不透明度以淡化背景
             line->SetLineWidth(1);
         }
         lines.push_back(line);
@@ -295,22 +308,15 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
         double z_max = *std::max_element(z_values.begin(), z_values.end());
         view->SetRange(-1000, -500, z_min-100, 1000, 500, z_max+100);
     }
-// 设定观察角度（单位：度）
+    // 设定观察角度（单位：度）
     // 目标：Y 轴朝上，Z 轴朝左
-
-    // 1. 将相机移动到 X 轴正方向，平视原点
     double view_longitude = 0.0;
     double view_latitude  = 90.0+15.0;
-
-    // 2. 将相机顺时针旋转90度，使 Y 轴变为新的“上”方向
     double view_psi       = -90.0;
-    
     int irep = 0;
     view->SetView(view_longitude, view_latitude, view_psi, irep);
 
-    view->SetViewChanged(kTRUE);
-    view->SetAutoRange(kTRUE);
-
+    //更新视角
        // 检查当前是否有 TPad 处于活动状态
     if (gPad) {
         // 2. 将视角参数同步给 TPad，防止鼠标交互时视角跳变
@@ -321,7 +327,7 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
         gPad->Modified(kTRUE);
         gPad->Update();
     }
-
+    
     // 5.2 绘制所有3D对象
     for (auto line : lines) line->Draw();
     for (auto tline : trackLines) tline->Draw("same");
@@ -352,7 +358,6 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
             
             const std::vector<int>& tbl = *pals[p].tbl;
             for (int i=0; i<(int)tbl.size(); ++i) {
-                // *** BUG修复：在堆上创建TBox对象(使用new) ***
                 TBox *b = new TBox(pal_x+i*pal_w/tbl.size(), y, pal_x+(i+1)*pal_w/tbl.size(), y+pal_h);
                 b->SetFillColor(tbl[i]); 
                 b->SetLineColor(tbl[i]); 
@@ -370,24 +375,30 @@ void visualizePDCEvent(const char* ridffile = "../ridf/data0074.ridf",
         
         TLatex info; info.SetNDC(); info.SetTextSize(0.025); info.SetTextFont(42);
         info.SetTextColor(kRed); info.DrawLatex(0.02, 0.84, Form("X wires: %d total, %d hit", count_x, hit_x));
-        info.SetTextColor(kGreen); info.DrawLatex(0.02, 0.88, Form("U wires: %d total, %d hit", count_u, hit_u));
-        info.SetTextColor(kBlue); info.DrawLatex(0.02, 0.80, Form("V wires: %d total, %d hit", count_v, hit_v));
-        info.SetTextColor(kGray+2); info.DrawLatex(0.02, 0.75, "Gray: No hit (thin)"); info.DrawLatex(0.02, 0.72, "Color: Hit (thick)");
-        info.SetTextColor(kRed); info.DrawLatex(0.02, 0.65, "X axis (Red)");
-        info.SetTextColor(kGreen+2); info.DrawLatex(0.02, 0.62, "Y axis (Green)");
-        info.SetTextColor(kBlue); info.DrawLatex(0.02, 0.59, "Z axis (Blue)");
+        info.SetTextColor(kGreen+1); info.DrawLatex(0.02, 0.80, Form("U wires: %d total, %d hit", count_u, hit_u));
+        info.SetTextColor(kBlue); info.DrawLatex(0.02, 0.76, Form("V wires: %d total, %d hit", count_v, hit_v));
+        
+        info.SetTextColor(kGray+2); info.DrawLatex(0.02, 0.70, "Gray: No hit (thin)"); info.DrawLatex(0.02, 0.67, "Color: Hit (thick)");
+        info.SetTextColor(kMagenta); info.DrawLatex(0.02, 0.64, "Magenta: Reconstructed Track");
+        
+        info.SetTextColor(kRed); info.DrawLatex(0.02, 0.58, "X axis (Red)");
+        info.SetTextColor(kGreen+2); info.DrawLatex(0.02, 0.55, "Y axis (Green)");
+        info.SetTextColor(kBlue); info.DrawLatex(0.02, 0.52, "Z axis (Blue)");
     }
     // 6. 更新画布并保存
     c1->Update();
-    std::string outputFile = std::string(outputDir) + Form("/pdc_event_%d_3d.png", target_event);
-    c1->SaveAs(outputFile.c_str());
-    std::cout << "可视化图像已保存到: " << outputFile << std::endl;
+    //加上filename
+    std::string outputFilePNG = std::string(outputDir) + Form("/pdc_event_%d_%s_3d.png", target_event, fileName.c_str());
+    // std::string outputFile = std::string(outputDir) + Form("/pdc_event_%d_3d.png", target_event);
+    c1->SaveAs(outputFilePNG.c_str());
+    std::cout << "可视化图像已保存到: " << outputFilePNG << std::endl;
     
     // 7. 清理内存
-    // 注意：所有画在c1上的对象(lines, trackLines, axis_*, origin)都会由c1自动删除，无需手动delete
+    // 注意：所有画在c1上的对象(lines, trackLines, axis_*, origin, TBox*)都会由c1自动删除，无需手动delete
     delete pdchitcalib;
     delete pdctrackcalib;
     delete estore;
     // 如果希望画布在宏执行后保持打开，请将此函数包装在 TApplication 中
     // delete c1; // 若非交互式运行，可取消此行注释
 }
+

@@ -29,3 +29,6 @@ lib/
 *.ridf
 ridf/
 output/
+*png
+
+doc/

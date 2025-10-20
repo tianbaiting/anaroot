@@ -93,8 +93,8 @@ void fcn_wrapper(Int_t& npar, Double_t* grad, Double_t& fval, Double_t* par, Int
     fval = myChi2Calculation(par[0], par[1], par[2], par[3]);
 }
 
-void recoPDCsingleTrackVisual(const char* ridffile = "../ridf/data1008.ridf") {
-    int target_event = 97; // 只重建这个 event
+void recoPDCsingleTrackVisual(const char* ridffile = "../ridf/data0074.ridf") {
+    int target_event = 2; // 只重建这个 event
 
     gSystem->Load("libXMLParser.so");
     gSystem->Load("libanacore.so");

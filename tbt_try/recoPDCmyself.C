@@ -83,7 +83,7 @@ void fcn_wrapper(Int_t& npar, Double_t* grad, Double_t& fval, Double_t* par, Int
     fval = myChi2Calculation(par[0], par[1], par[2], par[3]);
 }
 
-void recoPDCmyself(const char* ridffile = "../ridf/data1008.ridf") {
+void recoPDCmyself(const char* ridffile = "../ridf/data0012.ridf") {
     gSystem->Load("libXMLParser.so");
     gSystem->Load("libanacore.so");
     TArtSAMURAIParameters *samuraiparameters = TArtSAMURAIParameters::Instance();

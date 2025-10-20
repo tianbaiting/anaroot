@@ -127,8 +127,7 @@ def analyze_with_odr(inrootfile="./output/data0077.ridf_pdc_tdc_tot.root"):
     u_lowest = u_folded[lowest_tdc_mask]
     tdc_lowest = tdc_data[lowest_tdc_mask]
 
-    offset_y_guess = np.min(tdc_data)
-
+    offset_y_guess = 4800
     center_x = valley_position
 
     slope_guess = 30
@@ -147,24 +146,60 @@ def analyze_with_odr(inrootfile="./output/data0077.ridf_pdc_tdc_tot.root"):
         return offset_y + slope * np.abs(x)  # 考虑谷底宽度的V形模型
 
     print("\n--- 步骤 4: 正在对折叠后的高统计数据进行ODR拟合... ---")
-    fit_mask = (u_folded >= -6) & (u_folded <= 6)
+    fit_mask = (u_folded >= -4) & (u_folded <= 4)
     u_folded_fit = u_folded[fit_mask]
     tdc_data_fit = tdc_data[fit_mask]
-    data_obj = RealData(u_folded_fit, tdc_data_fit)
+    
+    # --- 归一化数据以改善ODR数值稳定性 ---
+    print("归一化数据以改善ODR收敛性...")
+    u_mean, u_std = np.mean(u_folded_fit), np.std(u_folded_fit)
+    tdc_mean, tdc_std = np.mean(tdc_data_fit), np.std(tdc_data_fit)
+    
+    u_normalized = (u_folded_fit - u_mean) / u_std
+    tdc_normalized = (tdc_data_fit - tdc_mean) / tdc_std
+    
+    print(f"归一化参数: u_mean={u_mean:.4f}, u_std={u_std:.4f}")
+    print(f"归一化参数: tdc_mean={tdc_mean:.4f}, tdc_std={tdc_std:.4f}")
+    
+    # 调整初始参数到归一化空间
+    offset_y_norm = (offset_y_guess - tdc_mean) / tdc_std
+    slope_norm = slope_guess * u_std / tdc_std  # dy/dx -> (dy/tdc_std)/(dx/u_std)
+    initial_params_norm = [offset_y_norm, np.abs(slope_norm)]
+    
+    print(f"归一化初始参数: offset_y_norm={offset_y_norm:.4f}, slope_norm={slope_norm:.4f}")
+    
+    data_obj = RealData(u_normalized, tdc_normalized)
     model_obj = Model(v_shape_model)
-    odr_instance = ODR(data_obj, model_obj, beta0=initial_params, maxit=20000)
+    odr_instance = ODR(data_obj, model_obj, beta0=initial_params_norm, maxit=20000)
     output = odr_instance.run()
     
-    print("\nODR拟合完成。最终拟合参数:")
+    print("\nODR拟合完成。归一化空间的拟合参数:")
     output.pprint()
+    
+    # --- 反归一化参数到物理单位 ---
+    print("\n反归一化参数到物理单位...")
+    offset_y_physical = output.beta[0] * tdc_std + tdc_mean
+    slope_physical = output.beta[1] * tdc_std / u_std  # (dy/tdc_std)/(dx/u_std) -> dy/dx
+    
+    print(f"反归一化后的物理参数:")
+    print(f"  V形谷底 (y0) = {offset_y_physical:.4f} TDC counts")
+    print(f"  斜率 (slope) = {slope_physical:.4f} TDC/mm")
+    
+    # 构造反归一化的参数向量用于绘图
+    beta_physical = [offset_y_physical, slope_physical]
 
     # --- 步骤 5: 提取x和y方向的误差 ---
     print("\n--- 步骤 5: 正在从ODR结果中计算x和y的固有误差... ---")
-    sigma_x = np.std(output.delta)
-    sigma_y = np.std(output.eps)
-    # 打印结果 slope y center_x
-    print(f"拟合得到的斜率 (slope) = {output.beta[1]:.4f}")
-    print(f"拟合得到的V形谷底 (y0) = {output.beta[0]:.4f}")
+    # 反归一化residuals到物理单位
+    sigma_x_normalized = np.std(output.delta)
+    sigma_y_normalized = np.std(output.eps)
+    
+    sigma_x = sigma_x_normalized * u_std  # 转换到mm单位
+    sigma_y = sigma_y_normalized * tdc_std  # 转换到TDC单位
+    
+    print(f"归一化空间: sigma_x_norm={sigma_x_normalized:.4f}, sigma_y_norm={sigma_y_normalized:.4f}")
+    print(f"拟合得到的斜率 (slope) = {slope_physical:.4f} TDC/mm")
+    print(f"拟合得到的V形谷底 (y0) = {offset_y_physical:.4f} TDC counts")
 
 
     
@@ -181,7 +216,7 @@ def analyze_with_odr(inrootfile="./output/data0077.ridf_pdc_tdc_tot.root"):
               range=((-lomb_scargle_period/2, lomb_scargle_period/2), 
                      (np.min(tdc_data), 5400)))
     u_fit_line = np.linspace(-lomb_scargle_period/2, lomb_scargle_period/2, 500)
-    tdc_fit_line = v_shape_model(output.beta, u_fit_line)
+    tdc_fit_line = v_shape_model(beta_physical, u_fit_line)
     ax.plot(u_fit_line, tdc_fit_line, 'r-', linewidth=2.5, label='ODR Fit Curve')
     
     ax.set_xlabel("Relative Position U (folded) [mm]", fontsize=14)

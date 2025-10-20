@@ -6,7 +6,7 @@
 
 
 
-void recoPDCTrack(const char* ridffile = "../ridf/data0011.ridf") {
+void recoPDCTrack(const char* ridffile = "../ridf/data0074.ridf") {
 
   gSystem->Load("libXMLParser.so"); // 先加载XML解析库
     gSystem->Load("libanacore.so");

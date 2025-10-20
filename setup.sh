@@ -41,7 +41,7 @@ export LD_LIBRARY_PATH=$TARTSYS/lib:/usr/local/Trolltech/Qt-4.8.0/lib:/opt/qt/qw
 export PATH=$ANAROOT_WORK/bin:$TARTSYS/bin:/usr/local/Trolltech/Qt-4.8.0/bin:$PATH
 export PYTHONPATH=$TARTSYS/bin:$PATH
 export ANAUSER=$ANAUSER
-export PS1="[\u\[\e[1m\]/\$ANAUSER\[\e[0m\]@\h \W]\$ "
+# export PS1="[\u\[\e[1m\]/\$ANAUSER\[\e[0m\]@\h \W]\$ "
 
 export ROOT_INCLUDE_PATH=$TARTSYS/include:$ROOT_INCLUDE_PATH
 # export ROOT_INCLUDE_PATH=$ANAROOT_WORK/src/include:$ROOT_INCLUDE_PATH # 这个路径似乎不对
